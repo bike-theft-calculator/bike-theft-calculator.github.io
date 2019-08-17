@@ -33,6 +33,13 @@ let bikeTheftData = ``;
 let bikeLocCountsArr = [];
 let bikeMonthCountsArr = [];
 
+////**** Selected indices from the count arrays ****// 
+let bikeLocSelectedIndex = -1;
+let bikeMonthSelectedIndex = -1;
+
+//**** Colors ****// 
+let highlightColor = `#e8595f`;
+
 
 
 // --------------------------------------------------------------------------//
@@ -69,7 +76,7 @@ const bikeLocDataMap =
         [`Apartment`]:          [`Apartment (Rooming House, Condo)`],
         [`Corporate Building`]: [`Other Commercial / Corporate Places (For Profit, Warehouse, Corp. Bldg`],
         [`Parking`]:            [`Parking Lots (Apt., Commercial Or Non-Commercial)`],
-        [`House/Garage/Yard`]:  [`Single Home, House (Attach Garage, Cottage, Mobile)`, `Private Property (Pool, Shed, Detached Garage)`],
+        [`House / Garage / Yard`]:  [`Single Home, House (Attach Garage, Cottage, Mobile)`, `Private Property (Pool, Shed, Detached Garage)`],
         [`Streets`]:            [`Streets, Roads, Highways (Bicycle Path, Private Road)`],
         [`Other`]:              [`Ttc Subway Station`, `Universities / Colleges`, `Open Areas (Lakes, Parks, Rivers)`, `Convenience Stores`, `Bank And Other Financial Institutions (Money Mart, Tsx)`, `Other Non Commercial / Corporate Places (Non-Profit, Gov'T, Firehall)`],
     }
@@ -298,37 +305,39 @@ const getChartParkLocSvg = () => {
 
 // function generates bar chart for bike theft month data
 const generateBarChartBikeMonth = () => {
-    const width = 500,
+    const width = 600,
           height = 300;
 
-    console.log(`width: ${width}, height: ${height}`)
     const num = bikeMonthCountsArr.length;
+    // Get the maximum value of the data to use as a scale
     const max = d3.max(bikeMonthCountsArr, d => d.count);
-    console.log("BikeMonthCounts:");
-    console.log(bikeMonthCountsArr);
+
+    // create the bar containers and position them
     const svgBar = d3.select(`#barChartBikeMonth`)
       .attr(`width`, width)          
-      .attr(`height`, height)    // Select the container
-      .selectAll(`rect`)                              // Bind the upcoming date to <rect> elements
-      .data(bikeMonthCountsArr)                       // Select dataset 
+      .attr(`height`, height)       // Select the container
+      .selectAll(`rect`)            // Bind the upcoming date to <rect> elements
+      .data(bikeMonthCountsArr)     // Select dataset 
       .enter()
       .append(`svg`)
-      .attr(`y`, (obj) => height - obj.count * height / max  )
-      .attr(`x`, (obj, index) => index * width / num )
-      .attr(`width`, (obj, index) => width / num )
-      .attr(`height`, (obj) => obj.count*height/max);
+      .attr(`y`, (obj) => height - obj.count * height / max  ) // set the top position for each of the bars to extend to the bottom (scaled by max)
+      .attr(`x`, (obj, index) => index * width / num ) // set the left position for each of the bars
+      .attr(`width`, (obj, index) => width / num ) // how wide each bar+padding to be
+      .attr(`height`, (obj) => obj.count*height/max); // how tall each of the bar is (scaled by the max)
   
     const svgG =  svgBar.append(`g`);
+    // create the bars
     svgG.append(`rect`)
-      .attr(`fill`, (obj) => `#043752` )
-      .attr(`width`, (obj, index) => (width* 0.9) / num )
-      .attr(`height`, (obj) => obj.count*height/max -32);
+      .attr(`fill`, (obj, index) => {if (index == bikeMonthSelectedIndex) return highlightColor; else return  `#043752`}) // use the highlight color if it is the correct index, otherwise use the same color
+      .attr(`width`, (obj, index) => (width* 0.9) / num ) // make the bar width to be a bit smaller than the parent
+      .attr(`height`, (obj) => obj.count*height/max -32); // make the height to extend to the bottom - some space for the text
       
+    // add the labels at the bottom of each of the bars
     svgG.append(`text`)
       .html((obj) => `${obj.key}`)
-      .attr(`x`, (obj, index) => width / num / 2 )
-      .attr(`y`, (obj) => obj.count*height/max - 16)
-      .classed(`barChartLabel`, true);
+      .attr(`x`, (obj, index) => width / num / 2 ) // x position (middle of each bar)
+      .attr(`y`, (obj) => obj.count*height/max - 16) // y position bottom - 16px
+      .classed(`barChartLabel`, true); // add a class for each of the labels
   }
 
 
@@ -340,12 +349,19 @@ const printSvgs = () => {
 
 //function generates pie chart for bike theft location data
 const generatePieChartBikeLoc = () => {
-    const width = 300,
+    const width = 600,
         height = 300,
         radius = Math.min(width, height) / 2;
 
-    const color = d3.scaleOrdinal([`rgba(28,52,63)`, `rgba(4,55,82,0.1)`, `rgba(4,55,82,0.3)`,`rgba(4,55,82,0.5`, `rgba(4,55,82,0.7`, `rgba(4,55,82,0.9`])
-
+    // Define the colors for the pie chart without the higlighted one
+    let colorsArray = [`rgba(4,55,82,0.1)`, `rgba(4,55,82,0.3)`,`rgba(4,55,82,0.5`, `rgba(4,55,82,0.7`, `rgba(4,55,82,0.9`];
+    
+    // Insert the higlight color at the index of the selected element
+    colorsArray.splice(bikeLocSelectedIndex,0,highlightColor);
+    
+    // Sets up the color map to use for the pie chart and labels
+    const color = d3.scaleOrdinal(colorsArray);
+   
     // Generate the pie
     const pie = d3.pie()
                 .value(function(d) { return d.count; });
@@ -360,13 +376,15 @@ const generatePieChartBikeLoc = () => {
         .outerRadius(radius- 40)
         .innerRadius(radius- 40);
 
+    // Generate svg
+    const svg = d3.select(`#pie-chart-bike-loc`)
+    .attr(`width`, width)          
+    .attr(`height`, height)
+    .append(`g`)
+    .attr("transform", "translate(" + radius + "," + radius +")")
+
     //Generate groups for the arcs
-    const arcs = d3.select(`#pie-chart-bike-loc`)
-        .attr(`width`, width)          
-        .attr(`height`, height)
-        .append(`g`)
-        .attr("transform", "translate(" + width/2 + "," + height/2 +")")
-        .selectAll(`arc`)
+    const arcs = svg.selectAll(`arc`)
         .data(pie(bikeLocCountsArr))
         .enter()
         .append('g')
@@ -378,15 +396,55 @@ const generatePieChartBikeLoc = () => {
     arcs.append(`path`)
         .attr(`d`, arc)    
         .style(`fill`, function(d, i) {
-            return color(i);
+            //get a color for each element by using its key
+            return color(d.data.key);
         });
-        
-    arcs.append("text")
-        .attr("transform", function(d) { return "translate(" + labelArc.centroid(d) + ")"; })
-        .text(function(d) { return d.data.parkLocProperty;})
-        .style("fill", "#fff");
+    
+
+    // legend variables
+    let legendRectSize = 25; //size of the legend squares
+    let legendSpacing = 5; //spacing between squares
+    let legendXOffset = radius + 50; // offset from the left
+
+    // Create a legend structure and position it
+    const legend = svg.selectAll('.legend')
+    .data(color.domain())
+    .enter()
+    .append('g')
+    .attr('class', 'legend')
+    .attr('transform', function(d, i) {
+        let height = legendRectSize + legendSpacing; //height of color square + space
+        let offset = height * color.domain().length / 2; // vertical offset of the entire legend = height of one element + .05 the total number of elements
+        let x = legendXOffset; //legend is shifted to the left to leave room for text
+        let y = i * height - offset; // top of element is shifted up/down from center based on the offset and index above
+        return `translate(${x},${y})` //return the translation
+    });
+
+    // Create the color squares
+    legend.append('rect')
+        .attr('width', legendRectSize)
+        .attr('height', legendRectSize)
+        .style('fill', color)
+        .style('stroke', color);
+    
+    // Create the color labels
+    legend.append('text')
+    .attr('x', legendRectSize + legendSpacing)
+    .attr('y', legendRectSize - legendSpacing)
+    .text(function(d) { return d;}); // return label
+
 }
 
+// function takes an array and a selected key, and returns the index of the element containing the key 
+const getSelectedElementIndex = (arr, selectedKey) =>{
+    //Get the selected element based on the key
+    let selectedElement = arr.filter(el => el.key == selectedKey)[0];
+    
+    //Get the index of the selected element
+    let selectedIndex = arr.indexOf(selectedElement);
+
+    return selectedIndex;
+}
 
 
 // --------------------------------------------------------------------------//
@@ -432,6 +490,11 @@ $btnSubmitUserData.addEventListener (`click`, (event) => {
         bikeLocCountsArr = getCounts (bikeLocDataMap, 'Location_Type'); 
         bikeMonthCountsArr = getCounts (bikeMonthDataMap, 'Occurrence_Month');
 
+        // get the selected index from count arrays
+        bikeLocSelectedIndex = getSelectedElementIndex(bikeLocCountsArr, userDataAr[0].riskFactors[1].value);
+        bikeMonthSelectedIndex = getSelectedElementIndex(bikeMonthCountsArr, userDataAr[0].riskFactors[0].value);
+
+        // put the selected type for the parking first to color it red
         generatePgRiskFactors(); //generate page content
     }
 })
@@ -443,7 +506,7 @@ addEventListener (`click`, (event) => {
     const btn = event.target.closest(`button`);
 
     //if the button doesn't match the right class, do nothing; if it does, proceed
-    if(!btn.matches(`.expand-collapse`))
+    if(!btn || !btn.matches(`.expand-collapse`))
     {
         return; 
     }

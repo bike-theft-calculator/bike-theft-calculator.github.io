@@ -94,10 +94,10 @@ form {
 
 .infographic {
     display: grid;
-    grid-template-columns: 2fr 4fr;
+    grid-template-columns: 16em auto;
     grid-column-gap: 3em;
     margin: 0 auto;
-    width: 60%;
+    width: 80%;
     padding: 3em;
 }
 
