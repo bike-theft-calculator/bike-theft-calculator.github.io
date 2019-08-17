@@ -1,0 +1,167 @@
+body {
+    font-family: 'Open Sans', sans-serif;
+}
+
+
+/* page intro */
+.pg-intro {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    height: 100vh;
+}
+
+.text-container {
+    display: grid;
+    background-color: #EAE9E8;
+}
+
+
+form {
+    align-self: center;
+    justify-self: center;
+    text-align: center;
+}
+
+
+.title-intro {
+    margin-bottom: 0.8em;
+    max-width: 10em;
+    font-size: 4em;
+    font-weight: 600;
+    font-family: 'Source Sans Pro', sans-serif;
+    color: #043752; 
+}
+
+.custom-select {
+    display: block;
+    margin: 1em auto;
+    width: 80%;
+    border-width: 0.1em;
+    border-radius: 15px;
+    border-color: #043752;
+    padding: 1em;
+    background: transparent;
+    font-family: inherit;
+    color: #043752;
+
+}
+
+.call-to-act {
+    display: block;
+    margin: 4em auto;
+    width: 40%;
+    border-radius: 30px;
+    padding: 1em;
+    background-color: #E8595F;
+    text-transform: uppercase;
+    font-weight: 600;
+    color: white;
+}
+
+
+/*results page*/
+.top-bar {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    background-color: #e8595f;
+    padding: 1em 3em;
+    color: white;
+}
+
+.top-bar h1 {
+    font-size: 1.5em;
+}
+
+.current-date-time {
+    align-self: center;
+    justify-self: right;
+    vertical-align: baseline;
+}
+
+.tab {
+    display: grid;
+    grid-template-columns: auto 2em;
+    width: 100%;
+    padding: 0.5em 3em;
+    background-color: #043752;
+    color: white;
+}
+
+.tab span {
+    font-size: 1em;
+    text-transform: uppercase;
+}
+
+.infographic {
+    display: grid;
+    grid-template-columns: 2fr 4fr;
+    grid-column-gap: 3em;
+    margin: 0 auto;
+    width: 60%;
+    padding: 3em;
+}
+
+.text {
+    align-self: center;
+}
+
+.infographic h2 {
+    font-size: 2em;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: #043752;
+}
+
+.emphasis {
+    margin-bottom: 0.05em;
+    font-size: 8em;
+    font-weight: 600;
+    line-height: 1;
+    color: #e8595f;
+}
+
+.description {
+    font-size: 1.5em;
+    font-weight: 600;
+    color: #043752;
+}
+
+.pie-chart, .bar-chart {
+    align-self: center;
+    justify-self: center;
+}
+
+.barChartLabel {
+    font-weight: 600;
+    text-anchor: middle;
+    text-transform: uppercase;
+    color: #043752;
+}
+
+/* general classses */
+
+.hidden {
+    display: none;
+}
+
+.warning {
+    color: #e8595f;
+}
+
+.current-data-slice {
+    background-color: #e8595f;
+}
+
+.icon {
+    width: 2em;
+    height: 2em;
+}
+
+.rotate-90d {
+    transform: rotate(90deg);
+}
+
+.rotate-180d {
+    transform: rotate(180deg);
+}
+
