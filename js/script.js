@@ -320,10 +320,10 @@ const generateBarChartBikeMonth = () => {
       .data(bikeMonthCountsArr)     // Select dataset 
       .enter()
       .append(`svg`)
-      .attr(`y`, (obj) => height - obj.count * height / max  ) // set the top position for each of the bars to extend to the bottom (scaled by max)
-      .attr(`x`, (obj, index) => index * width / num ) // set the left position for each of the bars
-      .attr(`width`, (obj, index) => width / num ) // how wide each bar+padding to be
-      .attr(`height`, (obj) => obj.count*height/max); // how tall each of the bar is (scaled by the max)
+      .attr(`y`, (obj) => height - obj.count * height / max  )  // set the top position for each of the bars to extend to the bottom (scaled by max)
+      .attr(`x`, (obj, index) => index * width / num )          // set the left position for each of the bars
+      .attr(`width`, (obj, index) => width / num )              // how wide each bar+padding to be
+      .attr(`height`, (obj) => obj.count*height/max);           // how tall each of the bar is (scaled by the max)
   
     const svgG =  svgBar.append(`g`);
     // create the bars
