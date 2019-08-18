@@ -1,12 +1,26 @@
 // --------------------------------------------------------------------------//
 
+//********************************* CONCEPT: BIKE THEFT CALCULATOR *********************************// 
+
+// --------------------------------------------------------------------------//
+
+//Bike theft in Toronto is on the rise and few of the stolen bikes ever get recovered.
+//Bike Theft Calculator uses data from the Toronto Police open data portal to present users with probabilities of their bike getting stolen based on various risk factors.
+//The current app represents a minimum viable product with only two risk factors, current month of the year and type of parking. 
+//The complete app will also contain bike theft probability based on user location, date, and bike price. 
+//Potentially bike make and type might also be included in the future, but the current data has some gaps regarding these two factors. I have contacted Toronto Police to see if I could get some clarification.
+
+
+
+// --------------------------------------------------------------------------//
+
 //********************************* DOM LOC VARIABLES *********************************// 
 
 // --------------------------------------------------------------------------//
 
 const $pgIntro = document.getElementById(`pg-intro`)                                    //page intro
 const $bikeInfo = document.getElementById(`bike-info`)                                  //form with user bike info
-const $btnSubmitUserData = document.getElementById(`btn-submit-user-data`)              // submit user data btn
+const $btnSubmitUserData = document.getElementById(`btn-submit-user-data`)              //submit user data btn
 const $selectedBikeLoc = document.getElementById(`selected-bike-loc`)                   //selected bike location
 const $selectedBikePrice = document.getElementById(`selected-bike-price`)               //selected bike price
 const $pgResults = document.getElementById(`pg-results`)                                //page results
@@ -70,15 +84,15 @@ const userDataAr = [
 
 // --------------------------------------------------------------------------//
 
-//maps user input to data labels in raw data set
+//maps user bike location input to data labels in raw data set
 const bikeLocDataMap = 
     {   
-        [`Apartment`]:          [`Apartment (Rooming House, Condo)`],
-        [`Corporate Building`]: [`Other Commercial / Corporate Places (For Profit, Warehouse, Corp. Bldg`],
-        [`Parking`]:            [`Parking Lots (Apt., Commercial Or Non-Commercial)`],
+        [`Apartment`]:              [`Apartment (Rooming House, Condo)`],
+        [`Corporate Building`]:     [`Other Commercial / Corporate Places (For Profit, Warehouse, Corp. Bldg`],
+        [`Parking`]:                [`Parking Lots (Apt., Commercial Or Non-Commercial)`],
         [`House / Garage / Yard`]:  [`Single Home, House (Attach Garage, Cottage, Mobile)`, `Private Property (Pool, Shed, Detached Garage)`],
-        [`Streets`]:            [`Streets, Roads, Highways (Bicycle Path, Private Road)`],
-        [`Other`]:              [`Ttc Subway Station`, `Universities / Colleges`, `Open Areas (Lakes, Parks, Rivers)`, `Convenience Stores`, `Bank And Other Financial Institutions (Money Mart, Tsx)`, `Other Non Commercial / Corporate Places (Non-Profit, Gov'T, Firehall)`],
+        [`Streets`]:                [`Streets, Roads, Highways (Bicycle Path, Private Road)`],
+        [`Other`]:                  [`Ttc Subway Station`, `Universities / Colleges`, `Open Areas (Lakes, Parks, Rivers)`, `Convenience Stores`, `Bank And Other Financial Institutions (Money Mart, Tsx)`, `Other Non Commercial / Corporate Places (Non-Profit, Gov'T, Firehall)`],
     }
 
 //maps month name to month number 
@@ -133,22 +147,22 @@ const getCurrMonthName = () => {
 
 // --------------------------------------------------------------------------//
 
-//function fetches crime data
+//function fetches crime data on Toronto bike thefts
 d3.csv(`data/bike-theft.csv`).then(function(data) {
     bikeTheftData = data;
     console.log(bikeTheftData)
-  });
+});
 
 
-//function filters through a data array to return all instances that match the values of a desired property
+//function filters through a data array to return all value instances that match the values of a desired property
 const getFilteredArr = (arr, property, values) => {
     return arr.filter(obj => {            
-        return values.includes(obj[property]);  //returns true if an array of values includes the value of a property from this array's object
+        return values.includes(obj[property]);         //returns true if an array of values includes the value of a property from this array's object
     });
 }
 
 //function returns an arrays with the counts of all instances of the values of a given property
-const getCounts = (dataMapObj, property) => {         // take an object containing a data map and a property name
+const getCounts = (dataMapObj, property) => {         //take an object containing a data map and a property name
     dataMapArr = Object.keys(dataMapObj);             //turn data map object into a data map array
     const propertyCountsArr = [];                     //create an array to hold the number of times each property value appears
 
@@ -253,23 +267,23 @@ const printTopBar = (arr, i) => {
 const getSingleRiskFactor = (riskFactor) => {
     return `
         <li class="single-tile">
-        <div class="tab" id="tab">
-            <span>${riskFactor.title}</span>
-            <button class="icon expand-collapse">
-                <img src="img/SVG/expand-collapse.svg" class="rotate-90d">
-            </button>
-        </div>
-        <figure class="infographic">
-            <figcaption class="text">
-                <h2>${riskFactor.value}</h2>
-                <svg class="underscore" width="100%" height="4">
-                <line x1="0" y1="0" x2="100%" y2="0" stroke="#043752" stroke-width="4"/>
-                </svg>
-                <div class="emphasis">${riskFactor.percBikeThefts}</div>
-                <fiv class="description">of bike thefts</div>
-            </figcaption>
-            ${riskFactor.graphic}
-        </figure>
+            <div class="tab" id="tab">
+                <span>${riskFactor.title}</span>
+                <button class="icon expand-collapse">
+                    <img src="img/SVG/expand-collapse.svg" class="rotate-90d">
+                </button>
+            </div>
+            <figure class="infographic">
+                <figcaption class="text">
+                    <h2>${riskFactor.value}</h2>
+                    <svg class="underscore" width="100%" height="4">
+                        <line x1="0" y1="0" x2="100%" y2="0" stroke="#043752" stroke-width="4"/>
+                    </svg>
+                    <div class="emphasis">${riskFactor.percBikeThefts}</div>
+                    <fiv class="description">of bike thefts</div>
+                </figcaption>
+                ${riskFactor.graphic}
+            </figure>
         </li>
     `
 };
@@ -315,37 +329,31 @@ const generateBarChartBikeMonth = () => {
     // create the bar containers and position them
     const svgBar = d3.select(`#barChartBikeMonth`)
       .attr(`width`, width)          
-      .attr(`height`, height)       // Select the container
+      .attr(`height`, height)       
       .selectAll(`rect`)            // Bind the upcoming date to <rect> elements
       .data(bikeMonthCountsArr)     // Select dataset 
       .enter()
       .append(`svg`)
       .attr(`y`, (obj) => height - obj.count * height / max  )  // set the top position for each of the bars to extend to the bottom (scaled by max)
       .attr(`x`, (obj, index) => index * width / num )          // set the left position for each of the bars
-      .attr(`width`, (obj, index) => width / num )              // how wide each bar+padding to be
-      .attr(`height`, (obj) => obj.count*height/max);           // how tall each of the bar is (scaled by the max)
+      .attr(`width`, (obj, index) => width / num )              // set how wide each bar+padding to be
+      .attr(`height`, (obj) => obj.count*height/max);           // set how tall each of the bar is (scaled by the max)
   
     const svgG =  svgBar.append(`g`);
     // create the bars
     svgG.append(`rect`)
       .attr(`fill`, (obj, index) => {if (index == bikeMonthSelectedIndex) return highlightColor; else return  `#043752`}) // use the highlight color if it is the correct index, otherwise use the same color
-      .attr(`width`, (obj, index) => (width* 0.9) / num ) // make the bar width to be a bit smaller than the parent
-      .attr(`height`, (obj) => obj.count*height/max -32); // make the height to extend to the bottom - some space for the text
+      .attr(`width`, (obj, index) => (width* 0.9) / num )                                                                 // make the bar width to be a bit smaller than the parent
+      .attr(`height`, (obj) => obj.count*height/max -32);                                                                 // make the height to extend to the bottom - some space for the text
       
     // add the labels at the bottom of each of the bars
     svgG.append(`text`)
       .html((obj) => `${obj.key}`)
-      .attr(`x`, (obj, index) => width / num / 2 ) // x position (middle of each bar)
-      .attr(`y`, (obj) => obj.count*height/max - 16) // y position bottom - 16px
-      .classed(`barChartLabel`, true); // add a class for each of the labels
-  }
-
-
-//function generate all svg charts
-const printSvgs = () => {
-    generatePieChartBikeLoc ();
-    generateBarChartBikeMonth ();
+      .attr(`x`, (obj, index) => width / num / 2 )              // x position (middle of each bar)
+      .attr(`y`, (obj) => obj.count*height/max - 16)            // y position bottom - 16px
+      .classed(`barChartLabel`, true);                          // add a class for each of the labels
 }
+
 
 //function generates pie chart for bike theft location data
 const generatePieChartBikeLoc = () => {
@@ -353,46 +361,44 @@ const generatePieChartBikeLoc = () => {
         height = 300,
         radius = Math.min(width, height) / 2;
 
-    // Define the colors for the pie chart without the higlighted one
+    //define the colors for the pie chart without the highlighted one
     let colorsArray = [`rgba(4,55,82,0.1)`, `rgba(4,55,82,0.3)`,`rgba(4,55,82,0.5`, `rgba(4,55,82,0.7`, `rgba(4,55,82,0.9`];
     
-    // Insert the higlight color at the index of the selected element
+    //insert the highlight color at the index of the selected element
     colorsArray.splice(bikeLocSelectedIndex,0,highlightColor);
     
-    // Sets up the color map to use for the pie chart and labels
+    //set up the color map to use for the pie chart and labels
     const color = d3.scaleOrdinal(colorsArray);
    
-    // Generate the pie
+    //generate the pie
     const pie = d3.pie()
                 .value(function(d) { return d.count; });
 
-    // Generate the arcs
+    //generate the arcs
     const arc = d3.arc()
         .innerRadius(0)
         .outerRadius(radius);
 
-    // Generate labels
+    //generate labels
     const labelArc = d3.arc()
         .outerRadius(radius- 40)
         .innerRadius(radius- 40);
 
-    // Generate svg
+    //generate a group
     const svg = d3.select(`#pie-chart-bike-loc`)
-    .attr(`width`, width)          
-    .attr(`height`, height)
-    .append(`g`)
-    .attr("transform", "translate(" + radius + "," + radius +")")
+        .attr(`width`, width)          
+        .attr(`height`, height)
+        .append(`g`)
+        .attr("transform", "translate(" + radius + "," + radius +")")
 
-    //Generate groups for the arcs
+    //generate groups for the arcs
     const arcs = svg.selectAll(`arc`)
         .data(pie(bikeLocCountsArr))
         .enter()
         .append('g')
         .attr('class','arc');
-        // .append(arc)
 
-
-    //Draw arc paths inside the groups
+    //draw arc paths inside the groups
     arcs.append(`path`)
         .attr(`d`, arc)    
         .style(`fill`, function(d, i) {
@@ -401,41 +407,41 @@ const generatePieChartBikeLoc = () => {
         });
     
 
-    // legend variables
-    let legendRectSize = 25; //size of the legend squares
-    let legendSpacing = 5; //spacing between squares
-    let legendXOffset = radius + 50; // offset from the left
+    //create legend variables
+    let legendRectSize = 25;                        //size of the legend squares
+    let legendSpacing = 5;                          //spacing between squares
+    let legendXOffset = radius + 50;                //offset from the left
 
-    // Create a legend structure and position it
+    //create a legend structure and position it
     const legend = svg.selectAll('.legend')
     .data(color.domain())
     .enter()
     .append('g')
     .attr('class', 'legend')
     .attr('transform', function(d, i) {
-        let height = legendRectSize + legendSpacing; //height of color square + space
-        let offset = height * color.domain().length / 2; // vertical offset of the entire legend = height of one element + .05 the total number of elements
-        let x = legendXOffset; //legend is shifted to the left to leave room for text
-        let y = i * height - offset; // top of element is shifted up/down from center based on the offset and index above
-        return `translate(${x},${y})` //return the translation
+        let height = legendRectSize + legendSpacing;        //height of color square + space
+        let offset = height * color.domain().length / 2;    //vertical offset of the entire legend = height of one element + .05 the total number of elements
+        let x = legendXOffset;                              //legend is shifted to the left to leave room for text
+        let y = i * height - offset;                        //top of element is shifted up/down from center based on the offset and index above
+        return `translate(${x},${y})`                       //return the translation
     });
 
-    // Create the color squares
+    //create the color squares
     legend.append('rect')
         .attr('width', legendRectSize)
         .attr('height', legendRectSize)
         .style('fill', color)
         .style('stroke', color);
     
-    // Create the color labels
+    //create the color labels
     legend.append('text')
-    .attr('x', legendRectSize + legendSpacing)
-    .attr('y', legendRectSize - legendSpacing)
-    .text(function(d) { return d;}); // return label
+        .attr('x', legendRectSize + legendSpacing)
+        .attr('y', legendRectSize - legendSpacing)
+        .text(function(d) { return d;}); // return label
 
 }
 
-// function takes an array and a selected key, and returns the index of the element containing the key 
+//function takes an array and a selected key, and returns the index of the element containing the key 
 const getSelectedElementIndex = (arr, selectedKey) =>{
     //Get the selected element based on the key
     let selectedElement = arr.filter(el => el.key == selectedKey)[0];
@@ -444,6 +450,12 @@ const getSelectedElementIndex = (arr, selectedKey) =>{
     let selectedIndex = arr.indexOf(selectedElement);
 
     return selectedIndex;
+}
+
+//function generates all svg charts
+const printSvgs = () => {
+    generatePieChartBikeLoc ();
+    generateBarChartBikeMonth ();
 }
 
 
@@ -490,11 +502,10 @@ $btnSubmitUserData.addEventListener (`click`, (event) => {
         bikeLocCountsArr = getCounts (bikeLocDataMap, 'Location_Type'); 
         bikeMonthCountsArr = getCounts (bikeMonthDataMap, 'Occurrence_Month');
 
-        // get the selected index from count arrays
+        //get the selected index from count arrays
         bikeLocSelectedIndex = getSelectedElementIndex(bikeLocCountsArr, userDataAr[0].riskFactors[1].value);
         bikeMonthSelectedIndex = getSelectedElementIndex(bikeMonthCountsArr, userDataAr[0].riskFactors[0].value);
 
-        // put the selected type for the parking first to color it red
         generatePgRiskFactors(); //generate page content
     }
 })
